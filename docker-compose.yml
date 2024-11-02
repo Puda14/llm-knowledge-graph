@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  neo4j:
+    image: neo4j:latest
+    volumes:
+      - ./neo4j/data:/data
+      - ./neo4j/logs:/logs
+      - ./neo4j/plugins:/plugins
+    environment:
+      - NEO4J_AUTH_FILE=/run/secrets/neo4j_auth_file
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    restart: always
+    networks:
+      - my_network
+    secrets:
+      - neo4j_auth_file
+
+  python:
+    image: python:3.9
+    volumes:
+      - ./app:/app
+    working_dir: /app
+    environment:
+      - NEO4J_USERNAME=${NEO4J_USERNAME}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+      - NEO4J_URI=${NEO4J_URI}
+    depends_on:
+      - neo4j
+    networks:
+      - my_network
+    command: ["sh", "-c", "pip install -r requirements.txt && python main.py"]
+
+networks:
+  my_network:
+
+secrets:
+  neo4j_auth_file:
+    file: ./neo4j_auth.txt
