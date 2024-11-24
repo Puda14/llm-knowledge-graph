@@ -1,1 +1,3 @@
 neo4j
+pymongo[srv]==3.12.0
+python-dotenv

@@ -27,6 +27,7 @@ services:
       - NEO4J_USERNAME=${NEO4J_USERNAME}
       - NEO4J_PASSWORD=${NEO4J_PASSWORD}
       - NEO4J_URI=${NEO4J_URI}
+      - MONGODB_URI=${MONGODB_URI}
     depends_on:
       - neo4j
     networks:
