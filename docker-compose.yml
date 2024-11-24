@@ -18,7 +18,7 @@ services:
     secrets:
       - neo4j_auth_file
 
-  python:
+  app:
     image: python:3.9
     volumes:
       - ./app:/app
@@ -35,16 +35,16 @@ services:
     ports:
       - "8003:8003"
 
-  webhook-handler:
+  webhook:
     image: python:3.9
     volumes:
-      - ./webhook-handler:/app
+      - ./webhook:/app
     working_dir: /app
     environment:
       - MONGODB_URI=${MONGODB_URI}
     networks:
       - my_network
-    command: ["sh", "-c", "pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8386"]
+    command: ["sh", "-c", "pip install -r requirements.txt && uvicorn handler:app --host 0.0.0.0 --port 8386"]
     ports:
       - "8386:8386"
 
@@ -52,24 +52,13 @@ services:
     image: ngrok/ngrok:latest
     command:
       - "http"
-      - "http://webhook-handler:8386"
+      - "http://webhook:8386"
     environment:
       NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
     ports:
       - "4040:4040"
     networks:
       - my_network
-
-  # webhook-updater:
-  #   image: python:3.9
-  #   volumes:
-  #     - ./webhook-handler:/app
-  #   working_dir: /app
-  #   environment:
-  #     GITHUB_TOKEN: ${GITHUB_TOKEN}
-  #   depends_on:
-  #     - ngrok
-  #   command: ["python", "update_github_webhook.py"]
 
 networks:
   my_network:
